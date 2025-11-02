@@ -1,0 +1,25 @@
+{
+  "name": "Midnight Reaper",
+  "description": "Execute midnight harvest for all active vaults - compounds rewards with 13% soul tax and 1% charity donation",
+  "trigger": {
+    "type": "manual",
+    "label": "🌙 Run Midnight Harvest"
+  },
+  "actions": [
+    {
+      "type": "command",
+      "command": "ts-node scripts/midnight-harvest.ts",
+      "cwd": "${workspaceFolder}"
+    }
+  ],
+  "requirements": {
+    "blockTime": "00:00 UTC",
+    "description": "Should be run daily at midnight UTC"
+  },
+  "metadata": {
+    "soulTaxRate": "13%",
+    "charityRate": "1%",
+    "netRewardRate": "86%",
+    "targetWallet": "@solana_foundation"
+  }
+}

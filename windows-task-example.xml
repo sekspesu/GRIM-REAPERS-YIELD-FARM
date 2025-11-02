@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-16"?>
+<!--
+  Windows Task Scheduler Configuration for Midnight Harvest
+  
+  Import Instructions:
+  1. Open Task Scheduler (taskschd.msc)
+  2. Click "Import Task..." in the Actions panel
+  3. Select this XML file
+  4. Update the paths in the <Command> and <WorkingDirectory> fields
+  5. Set your user account in the <UserId> field
+  6. Save the task
+  
+  Or create manually:
+  1. Open Task Scheduler
+  2. Create Basic Task
+  3. Name: "Soul Harvest - Midnight Reaper"
+  4. Trigger: Daily at 00:00 UTC
+  5. Action: Start a program
+     - Program: cmd.exe
+     - Arguments: /c npm run midnight-harvest
+     - Start in: C:\path\to\soul-harvest-vault
+-->
+<Task version="1.2" xmlns="http://schemas.microsoft.com/windows/2004/02/mit/task">
+  <RegistrationInfo>
+    <Date>2025-11-02T00:00:00</Date>
+    <Author>Soul Harvest Vault</Author>
+    <Description>Executes midnight harvest for all active vaults at 00:00 UTC daily. Compounds rewards with 13% soul tax and 1% charity donation to Solana Foundation.</Description>
+  </RegistrationInfo>
+  <Triggers>
+    <CalendarTrigger>
+      <StartBoundary>2025-11-02T00:00:00</StartBoundary>
+      <Enabled>true</Enabled>
+      <ScheduleByDay>
+        <DaysInterval>1</DaysInterval>
+      </ScheduleByDay>
+    </CalendarTrigger>
+  </Triggers>
+  <Principals>
+    <Principal id="Author">
+      <UserId>YOUR_USERNAME</UserId>
+      <LogonType>InteractiveToken</LogonType>
+      <RunLevel>LeastPrivilege</RunLevel>
+    </Principal>
+  </Principals>
+  <Settings>
+    <MultipleInstancesPolicy>IgnoreNew</MultipleInstancesPolicy>
+    <DisallowStartIfOnBatteries>false</DisallowStartIfOnBatteries>
+    <StopIfGoingOnBatteries>false</StopIfGoingOnBatteries>
+    <AllowHardTerminate>true</AllowHardTerminate>
+    <StartWhenAvailable>true</StartWhenAvailable>
+    <RunOnlyIfNetworkAvailable>true</RunOnlyIfNetworkAvailable>
+    <IdleSettings>
+      <StopOnIdleEnd>false</StopOnIdleEnd>
+      <RestartOnIdle>false</RestartOnIdle>
+    </IdleSettings>
+    <AllowStartOnDemand>true</AllowStartOnDemand>
+    <Enabled>true</Enabled>
+    <Hidden>false</Hidden>
+    <RunOnlyIfIdle>false</RunOnlyIfIdle>
+    <WakeToRun>false</WakeToRun>
+    <ExecutionTimeLimit>PT1H</ExecutionTimeLimit>
+    <Priority>7</Priority>
+  </Settings>
+  <Actions Context="Author">
+    <Exec>
+      <Command>cmd.exe</Command>
+      <Arguments>/c npm run midnight-harvest &gt;&gt; logs\midnight-harvest.log 2&gt;&amp;1</Arguments>
+      <WorkingDirectory>C:\path\to\soul-harvest-vault</WorkingDirectory>
+    </Exec>
+  </Actions>
+</Task>
