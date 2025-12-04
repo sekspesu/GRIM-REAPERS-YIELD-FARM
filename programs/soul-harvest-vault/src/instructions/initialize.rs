@@ -57,7 +57,7 @@ pub fn handler(
     config.reaper_boost = DEFAULT_REAPER_BOOST; // 2.0x boost
     config.souls_per_token = souls_per_token;
     config.total_tvl = 0; // Initialize global TVL to 0
-    config.bump = ctx.bumps.config;
+    config.bump = *ctx.bumps.get("config").unwrap();
     
     msg!("Soul Harvest Vault initialized");
     msg!("Authority: {}", config.authority);

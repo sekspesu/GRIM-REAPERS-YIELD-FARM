@@ -1,5 +1,5 @@
 use anchor_lang::prelude::*;
-use anchor_spl::token::{self, Token, TokenAccount, Transfer, Burn};
+use anchor_spl::token::{self, Token, TokenAccount, Transfer};
 
 use crate::constants::*;
 use crate::errors::VaultError;
@@ -171,7 +171,7 @@ pub fn handler(ctx: Context<MidnightHarvest>) -> Result<MidnightHarvestResult> {
 
     // Transfer charity amount to Solana Foundation
     if charity_amount > 0 {
-        let vault_key = vault.key();
+        let _vault_key = vault.key();
         let owner_key = vault.owner;
         let mint_key = vault.token_mint;
         let seeds = &[

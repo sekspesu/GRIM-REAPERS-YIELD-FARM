@@ -82,18 +82,20 @@ pub struct MintReaperPass<'info> {
 
 /// Mint Reaper Pass instruction handler
 pub fn handler(ctx: Context<MintReaperPass>) -> Result<()> {
-    let config = &mut ctx.accounts.config;
-    
     // Verify supply limit has not been reached
     require!(
-        config.reaper_supply < REAPER_MAX_SUPPLY,
+        ctx.accounts.config.reaper_supply < REAPER_MAX_SUPPLY,
         VaultError::SupplyExhausted
     );
+    
+    // Get config bump for signing
+    let config_bump = ctx.accounts.config.bump;
+    let authority_key = ctx.accounts.config.authority;
     
     // Mint 1 token to recipient
     let config_seeds = &[
         VaultConfig::SEED_PREFIX,
-        &[config.bump],
+        &[config_bump],
     ];
     let signer_seeds = &[&config_seeds[..]];
     
@@ -114,7 +116,7 @@ pub fn handler(ctx: Context<MintReaperPass>) -> Result<()> {
         uri: REAPER_PASS_URI.to_string(),
         seller_fee_basis_points: 0,
         creators: Some(vec![Creator {
-            address: config.authority,
+            address: authority_key,
             verified: false,
             share: 100,
         }]),
@@ -122,14 +124,22 @@ pub fn handler(ctx: Context<MintReaperPass>) -> Result<()> {
         uses: None,
     };
     
+    // Store account infos to avoid temporary value issues
+    let metadata_info = ctx.accounts.metadata.to_account_info();
+    let mint_info = ctx.accounts.reaper_mint.to_account_info();
+    let config_info = ctx.accounts.config.to_account_info();
+    let authority_info = ctx.accounts.authority.to_account_info();
+    let system_program_info = ctx.accounts.system_program.to_account_info();
+    let rent_info = ctx.accounts.rent.to_account_info();
+    
     let create_metadata_accounts = CreateMetadataAccountV3CpiAccounts {
-        metadata: &ctx.accounts.metadata.to_account_info(),
-        mint: &ctx.accounts.reaper_mint.to_account_info(),
-        mint_authority: &ctx.accounts.config.to_account_info(),
-        payer: &ctx.accounts.authority.to_account_info(),
-        update_authority: (&ctx.accounts.config.to_account_info(), true),
-        system_program: &ctx.accounts.system_program.to_account_info(),
-        rent: Some(&ctx.accounts.rent.to_account_info()),
+        metadata: &metadata_info,
+        mint: &mint_info,
+        mint_authority: &config_info,
+        payer: &authority_info,
+        update_authority: (&config_info, true),
+        system_program: &system_program_info,
+        rent: Some(&rent_info),
     };
     
     let create_metadata_args = CreateMetadataAccountV3InstructionArgs {
@@ -146,16 +156,20 @@ pub fn handler(ctx: Context<MintReaperPass>) -> Result<()> {
     .invoke_signed(signer_seeds)?;
     
     // Create master edition (supply = 1 for NFT)
+    let edition_info = ctx.accounts.master_edition.to_account_info();
+    let metadata_info2 = ctx.accounts.metadata.to_account_info();
+    let token_program_info = ctx.accounts.token_program.to_account_info();
+    
     let create_master_edition_accounts = CreateMasterEditionV3CpiAccounts {
-        edition: &ctx.accounts.master_edition.to_account_info(),
-        mint: &ctx.accounts.reaper_mint.to_account_info(),
-        update_authority: &ctx.accounts.config.to_account_info(),
-        mint_authority: &ctx.accounts.config.to_account_info(),
-        payer: &ctx.accounts.authority.to_account_info(),
-        metadata: &ctx.accounts.metadata.to_account_info(),
-        token_program: &ctx.accounts.token_program.to_account_info(),
-        system_program: &ctx.accounts.system_program.to_account_info(),
-        rent: Some(&ctx.accounts.rent.to_account_info()),
+        edition: &edition_info,
+        mint: &mint_info,
+        update_authority: &config_info,
+        mint_authority: &config_info,
+        payer: &authority_info,
+        metadata: &metadata_info2,
+        token_program: &token_program_info,
+        system_program: &system_program_info,
+        rent: Some(&rent_info),
     };
     
     let create_master_edition_args = CreateMasterEditionV3InstructionArgs {
@@ -170,6 +184,7 @@ pub fn handler(ctx: Context<MintReaperPass>) -> Result<()> {
     .invoke_signed(signer_seeds)?;
     
     // Increment supply counter
+    let config = &mut ctx.accounts.config;
     config.reaper_supply = config.reaper_supply
         .checked_add(1)
         .ok_or(VaultError::ArithmeticOverflow)?;

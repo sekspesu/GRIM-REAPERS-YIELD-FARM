@@ -1,17 +1,18 @@
 [toolchain]
+anchor_version = "0.28.0"
 
 [features]
 resolution = true
 skip-lint = false
 
 [programs.localnet]
-soul_harvest_vault = "11111111111111111111111111111111"
+soul_harvest_vault = "CM7bjZs41G4ryhjUMptVRLLd1ojwxHrrE5sGfEGqV5h"
 
 [programs.devnet]
-soul_harvest_vault = "11111111111111111111111111111111"
+soul_harvest_vault = "CM7bjZs41G4ryhjUMptVRLLd1ojwxHrrE5sGfEGqV5h"
 
 [programs.mainnet]
-soul_harvest_vault = "11111111111111111111111111111111"
+soul_harvest_vault = "CM7bjZs41G4ryhjUMptVRLLd1ojwxHrrE5sGfEGqV5h"
 
 [registry]
 url = "https://api.apr.dev"

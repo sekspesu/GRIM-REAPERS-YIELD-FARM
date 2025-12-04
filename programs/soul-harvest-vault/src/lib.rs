@@ -35,7 +35,7 @@ pub mod state;
 
 use instructions::*;
 
-declare_id!("11111111111111111111111111111111");
+declare_id!("CM7bjZs41G4ryhjUMptVRLLd1ojwxHrrE5sGfEGqV5h");
 
 #[program]
 pub mod soul_harvest_vault {
@@ -206,35 +206,36 @@ pub mod soul_harvest_vault {
         instructions::close_vault::handler(ctx)
     }
 
-    /// Mint a new Reaper Pass NFT (authority only)
-    ///
-    /// Mints a Reaper Pass NFT to a recipient. Only the program authority can call this.
-    /// Enforces a maximum supply of 1666 Reaper Passes.
-    ///
-    /// # Accounts
-    ///
-    /// * `config` - VaultConfig PDA (mutable)
-    /// * `reaper_mint` - Reaper Pass mint (mutable)
-    /// * `recipient_token_account` - Recipient's token account (initialized if needed)
-    /// * `recipient` - Recipient public key
-    /// * `authority` - Program authority (signer, payer)
-    /// * `metadata` - Metaplex metadata account (initialized)
-    /// * `master_edition` - Metaplex master edition account (initialized)
-    ///
-    /// # Errors
-    ///
-    /// * `SupplyExhausted` - If 1666 Reaper Passes have already been minted
-    /// * `Unauthorized` - If signer is not the program authority
-    ///
-    /// # Example
-    ///
-    /// ```ignore
-    /// // Mint Reaper Pass to user
-    /// mint_reaper_pass(ctx)?;
-    /// ```
-    pub fn mint_reaper_pass(ctx: Context<MintReaperPass>) -> Result<()> {
-        instructions::mint_reaper_pass::handler(ctx)
-    }
+    // TODO: Re-enable after fixing mpl-token-metadata dependency
+    // /// Mint a new Reaper Pass NFT (authority only)
+    // ///
+    // /// Mints a Reaper Pass NFT to a recipient. Only the program authority can call this.
+    // /// Enforces a maximum supply of 1666 Reaper Passes.
+    // ///
+    // /// # Accounts
+    // ///
+    // /// * `config` - VaultConfig PDA (mutable)
+    // /// * `reaper_mint` - Reaper Pass mint (mutable)
+    // /// * `recipient_token_account` - Recipient's token account (initialized if needed)
+    // /// * `recipient` - Recipient public key
+    // /// * `authority` - Program authority (signer, payer)
+    // /// * `metadata` - Metaplex metadata account (initialized)
+    // /// * `master_edition` - Metaplex master edition account (initialized)
+    // ///
+    // /// # Errors
+    // ///
+    // /// * `SupplyExhausted` - If 1666 Reaper Passes have already been minted
+    // /// * `Unauthorized` - If signer is not the program authority
+    // ///
+    // /// # Example
+    // ///
+    // /// ```ignore
+    // /// // Mint Reaper Pass to user
+    // /// mint_reaper_pass(ctx)?;
+    // /// ```
+    // pub fn mint_reaper_pass(ctx: Context<MintReaperPass>) -> Result<()> {
+    //     instructions::mint_reaper_pass::handler(ctx)
+    // }
 
     /// Midnight Harvest - Automated daily compounding with soul tax
     ///

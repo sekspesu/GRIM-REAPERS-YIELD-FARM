@@ -69,9 +69,10 @@ pub fn handler(
     require!(amount <= vault.balance, VaultError::InsufficientBalance);
     
     // Transfer tokens from vault to owner using PDA as authority
+    let owner_key = ctx.accounts.owner.key();
     let seeds = &[
         Vault::SEED_PREFIX,
-        ctx.accounts.owner.key().as_ref(),
+        owner_key.as_ref(),
         vault.token_mint.as_ref(),
         &[vault.bump],
     ];

@@ -4,8 +4,6 @@ use anchor_spl::token::{self, Mint, Token, TokenAccount, Transfer};
 use crate::state::{Vault, LeaderboardEntry, VaultConfig};
 use crate::errors::VaultError;
 
-use crate::state::{Vault, LeaderboardEntry, VaultConfig};
-
 /// Create a new vault with an initial deposit
 #[derive(Accounts)]
 pub struct CreateVault<'info> {
@@ -101,14 +99,14 @@ pub fn handler(
     vault.last_compound = current_time;
     vault.total_souls_harvested = 0;
     vault.is_active = true;
-    vault.bump = ctx.bumps.vault;
+    vault.bump = *ctx.bumps.get("vault").unwrap();
     
     // Initialize leaderboard entry
     let leaderboard_entry = &mut ctx.accounts.leaderboard_entry;
     leaderboard_entry.user = ctx.accounts.owner.key();
     leaderboard_entry.tvl = initial_deposit;
     leaderboard_entry.rank = 0;
-    leaderboard_entry.bump = ctx.bumps.leaderboard_entry;
+    leaderboard_entry.bump = *ctx.bumps.get("leaderboard_entry").unwrap();
     
     // Update global TVL
     let config = &mut ctx.accounts.config;

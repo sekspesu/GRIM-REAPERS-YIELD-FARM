@@ -1,0 +1,21 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.glow {
+  text-shadow: 0 0 10px rgba(255, 107, 53, 0.8),
+               0 0 20px rgba(255, 107, 53, 0.6),
+               0 0 30px rgba(255, 107, 53, 0.4);
+}
+
+.skull-glow {
+  filter: drop-shadow(0 0 10px rgba(255, 107, 53, 0.8));
+}

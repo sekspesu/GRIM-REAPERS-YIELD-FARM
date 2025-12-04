@@ -1,0 +1,148 @@
+{
+  "version": "0.1.0",
+  "name": "soul_harvest_vault",
+  "instructions": [
+    {
+      "name": "initialize",
+      "accounts": [
+        { "name": "config", "isMut": true, "isSigner": false },
+        { "name": "reaperMint", "isMut": true, "isSigner": true },
+        { "name": "authority", "isMut": true, "isSigner": true },
+        { "name": "systemProgram", "isMut": false, "isSigner": false },
+        { "name": "tokenProgram", "isMut": false, "isSigner": false },
+        { "name": "rent", "isMut": false, "isSigner": false }
+      ],
+      "args": [
+        { "name": "baseApy", "type": "u16" },
+        { "name": "soulsPerToken", "type": "u64" }
+      ]
+    },
+    {
+      "name": "createVault",
+      "accounts": [
+        { "name": "vault", "isMut": true, "isSigner": false },
+        { "name": "leaderboardEntry", "isMut": true, "isSigner": false },
+        { "name": "config", "isMut": true, "isSigner": false },
+        { "name": "owner", "isMut": true, "isSigner": true },
+        { "name": "tokenMint", "isMut": false, "isSigner": false },
+        { "name": "ownerTokenAccount", "isMut": true, "isSigner": false },
+        { "name": "vaultTokenAccount", "isMut": true, "isSigner": false },
+        { "name": "tokenProgram", "isMut": false, "isSigner": false },
+        { "name": "systemProgram", "isMut": false, "isSigner": false },
+        { "name": "rent", "isMut": false, "isSigner": false }
+      ],
+      "args": [
+        { "name": "initialDeposit", "type": "u64" }
+      ]
+    },
+    {
+      "name": "compound",
+      "accounts": [
+        { "name": "vault", "isMut": true, "isSigner": false },
+        { "name": "config", "isMut": false, "isSigner": false },
+        { "name": "leaderboardEntry", "isMut": true, "isSigner": false },
+        { "name": "ownerReaperAccount", "isMut": false, "isSigner": false },
+        { "name": "reaperMint", "isMut": false, "isSigner": false }
+      ],
+      "args": []
+    },
+    {
+      "name": "withdraw",
+      "accounts": [
+        { "name": "vault", "isMut": true, "isSigner": false },
+        { "name": "leaderboardEntry", "isMut": true, "isSigner": false },
+        { "name": "config", "isMut": true, "isSigner": false },
+        { "name": "owner", "isMut": false, "isSigner": true },
+        { "name": "vaultTokenAccount", "isMut": true, "isSigner": false },
+        { "name": "ownerTokenAccount", "isMut": true, "isSigner": false },
+        { "name": "tokenProgram", "isMut": false, "isSigner": false }
+      ],
+      "args": [
+        { "name": "amount", "type": "u64" }
+      ]
+    },
+    {
+      "name": "closeVault",
+      "accounts": [
+        { "name": "vault", "isMut": true, "isSigner": false },
+        { "name": "leaderboardEntry", "isMut": true, "isSigner": false },
+        { "name": "owner", "isMut": true, "isSigner": true }
+      ],
+      "args": []
+    },
+    {
+      "name": "midnightHarvest",
+      "accounts": [
+        { "name": "vault", "isMut": true, "isSigner": false },
+        { "name": "config", "isMut": true, "isSigner": false },
+        { "name": "leaderboardEntry", "isMut": true, "isSigner": false },
+        { "name": "ownerReaperAccount", "isMut": false, "isSigner": false },
+        { "name": "reaperMint", "isMut": false, "isSigner": false },
+        { "name": "charityWallet", "isMut": false, "isSigner": false },
+        { "name": "vaultTokenAccount", "isMut": true, "isSigner": false },
+        { "name": "charityTokenAccount", "isMut": true, "isSigner": false },
+        { "name": "tokenProgram", "isMut": false, "isSigner": false }
+      ],
+      "args": []
+    }
+  ],
+  "accounts": [
+    {
+      "name": "VaultConfig",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          { "name": "authority", "type": "publicKey" },
+          { "name": "reaperMint", "type": "publicKey" },
+          { "name": "reaperSupply", "type": "u16" },
+          { "name": "baseApy", "type": "u16" },
+          { "name": "reaperBoost", "type": "u16" },
+          { "name": "soulsPerToken", "type": "u64" },
+          { "name": "totalTvl", "type": "u64" },
+          { "name": "bump", "type": "u8" }
+        ]
+      }
+    },
+    {
+      "name": "Vault",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          { "name": "owner", "type": "publicKey" },
+          { "name": "tokenMint", "type": "publicKey" },
+          { "name": "balance", "type": "u64" },
+          { "name": "lastCompound", "type": "i64" },
+          { "name": "totalSoulsHarvested", "type": "u64" },
+          { "name": "isActive", "type": "bool" },
+          { "name": "bump", "type": "u8" }
+        ]
+      }
+    },
+    {
+      "name": "LeaderboardEntry",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          { "name": "user", "type": "publicKey" },
+          { "name": "tvl", "type": "u64" },
+          { "name": "rank", "type": "u32" },
+          { "name": "bump", "type": "u8" }
+        ]
+      }
+    }
+  ],
+  "errors": [
+    { "code": 6000, "name": "InsufficientFunds", "msg": "Insufficient funds" },
+    { "code": 6001, "name": "InsufficientBalance", "msg": "Insufficient balance" },
+    { "code": 6002, "name": "NonZeroBalance", "msg": "Vault balance must be zero" },
+    { "code": 6003, "name": "VaultInactive", "msg": "Vault is inactive" },
+    { "code": 6004, "name": "SupplyExhausted", "msg": "Reaper Pass supply exhausted" },
+    { "code": 6005, "name": "Unauthorized", "msg": "Unauthorized" },
+    { "code": 6006, "name": "InvalidMint", "msg": "Invalid mint" },
+    { "code": 6007, "name": "ArithmeticOverflow", "msg": "Arithmetic overflow" },
+    { "code": 6008, "name": "InvalidDepositAmount", "msg": "Invalid deposit amount" }
+  ],
+  "metadata": {
+    "address": "CM7bjZs41G4ryhjUMptVRLLd1ojwxHrrE5sGfEGqV5h"
+  }
+}
