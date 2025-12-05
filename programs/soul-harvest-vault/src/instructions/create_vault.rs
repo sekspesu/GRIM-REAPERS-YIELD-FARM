@@ -15,7 +15,7 @@ pub struct CreateVault<'info> {
         seeds = [Vault::SEED_PREFIX, owner.key().as_ref(), token_mint.key().as_ref()],
         bump
     )]
-    pub vault: Account<'info, Vault>,
+    pub vault: Box<Account<'info, Vault>>,
     
     /// Leaderboard entry for the user (PDA)
     #[account(
@@ -25,7 +25,7 @@ pub struct CreateVault<'info> {
         seeds = [LeaderboardEntry::SEED_PREFIX, owner.key().as_ref()],
         bump
     )]
-    pub leaderboard_entry: Account<'info, LeaderboardEntry>,
+    pub leaderboard_entry: Box<Account<'info, LeaderboardEntry>>,
     
     /// Global configuration account
     #[account(
@@ -33,14 +33,14 @@ pub struct CreateVault<'info> {
         seeds = [VaultConfig::SEED_PREFIX],
         bump = config.bump,
     )]
-    pub config: Account<'info, VaultConfig>,
+    pub config: Box<Account<'info, VaultConfig>>,
     
     /// Vault owner (signer and payer)
     #[account(mut)]
     pub owner: Signer<'info>,
     
     /// Token mint being staked
-    pub token_mint: Account<'info, Mint>,
+    pub token_mint: Box<Account<'info, Mint>>,
     
     /// Owner's token account (source of deposit)
     #[account(
@@ -48,7 +48,7 @@ pub struct CreateVault<'info> {
         constraint = owner_token_account.mint == token_mint.key() @ VaultError::InvalidMint,
         constraint = owner_token_account.owner == owner.key()
     )]
-    pub owner_token_account: Account<'info, TokenAccount>,
+    pub owner_token_account: Box<Account<'info, TokenAccount>>,
     
     /// Vault's token account (destination for deposit)
     #[account(
@@ -57,16 +57,13 @@ pub struct CreateVault<'info> {
         token::mint = token_mint,
         token::authority = vault,
     )]
-    pub vault_token_account: Account<'info, TokenAccount>,
+    pub vault_token_account: Box<Account<'info, TokenAccount>>,
     
     /// SPL Token program
     pub token_program: Program<'info, Token>,
     
     /// System program
     pub system_program: Program<'info, System>,
-    
-    /// Rent sysvar
-    pub rent: Sysvar<'info, Rent>,
 }
 
 /// Create vault instruction handler
@@ -99,14 +96,14 @@ pub fn handler(
     vault.last_compound = current_time;
     vault.total_souls_harvested = 0;
     vault.is_active = true;
-    vault.bump = *ctx.bumps.get("vault").unwrap();
+    vault.bump = ctx.bumps.vault;
     
     // Initialize leaderboard entry
     let leaderboard_entry = &mut ctx.accounts.leaderboard_entry;
     leaderboard_entry.user = ctx.accounts.owner.key();
     leaderboard_entry.tvl = initial_deposit;
     leaderboard_entry.rank = 0;
-    leaderboard_entry.bump = *ctx.bumps.get("leaderboard_entry").unwrap();
+    leaderboard_entry.bump = ctx.bumps.leaderboard_entry;
     
     // Update global TVL
     let config = &mut ctx.accounts.config;

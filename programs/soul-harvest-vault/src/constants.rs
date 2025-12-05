@@ -28,6 +28,11 @@ pub const VAULT_SEED: &[u8] = b"vault";
 /// Used to derive: `["leaderboard", user]`
 pub const LEADERBOARD_SEED: &[u8] = b"leaderboard";
 
+/// PDA seed prefix for UserAchievements accounts
+///
+/// Used to derive: `["achievements", user]`
+pub const ACHIEVEMENTS_SEED: &[u8] = b"achievements";
+
 // ============================================================================
 // Time Constants (in seconds)
 // ============================================================================

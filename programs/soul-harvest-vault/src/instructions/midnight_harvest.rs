@@ -19,7 +19,7 @@ pub struct MidnightHarvest<'info> {
         bump = vault.bump,
         constraint = vault.is_active @ VaultError::VaultInactive,
     )]
-    pub vault: Account<'info, Vault>,
+    pub vault: Box<Account<'info, Vault>>,
 
     /// Leaderboard entry for the user (PDA)
     #[account(
@@ -27,22 +27,23 @@ pub struct MidnightHarvest<'info> {
         seeds = [LeaderboardEntry::SEED_PREFIX, vault.owner.as_ref()],
         bump = leaderboard_entry.bump
     )]
-    pub leaderboard_entry: Account<'info, LeaderboardEntry>,
+    pub leaderboard_entry: Box<Account<'info, LeaderboardEntry>>,
 
     #[account(
         mut,
         seeds = [CONFIG_SEED],
         bump = config.bump,
     )]
-    pub config: Account<'info, VaultConfig>,
+    pub config: Box<Account<'info, VaultConfig>>,
 
     /// Optional: Owner's Reaper Pass token account for boost
     #[account(
         constraint = owner_reaper_account.mint == config.reaper_mint,
         constraint = owner_reaper_account.owner == vault.owner,
     )]
-    pub owner_reaper_account: Option<Account<'info, TokenAccount>>,
+    pub owner_reaper_account: Option<Box<Account<'info, TokenAccount>>>,
 
+    /// CHECK: Validated by address constraint against config.reaper_mint
     #[account(address = config.reaper_mint)]
     pub reaper_mint: AccountInfo<'info>,
 
@@ -56,11 +57,11 @@ pub struct MidnightHarvest<'info> {
         mut,
         constraint = vault_token_account.owner == vault.key(),
     )]
-    pub vault_token_account: Account<'info, TokenAccount>,
+    pub vault_token_account: Box<Account<'info, TokenAccount>>,
 
     /// Charity's token account
     #[account(mut)]
-    pub charity_token_account: Account<'info, TokenAccount>,
+    pub charity_token_account: Box<Account<'info, TokenAccount>>,
 
     pub token_program: Program<'info, Token>,
 }

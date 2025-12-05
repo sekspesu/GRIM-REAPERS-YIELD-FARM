@@ -66,7 +66,7 @@ export default function Home() {
             {/* Footer */}
             <footer className="border-t border-halloween-orange/30 mt-16">
               <div className="container mx-auto px-4 py-6 text-center text-gray-400">
-                <p>Built for Kiroween Hackathon 2024 🎃</p>
+                <p>Built for Kiroween Hackathon 2025 🎃</p>
                 <p className="text-sm mt-2">The more souls, the scarier the yield! 💀</p>
               </div>
             </footer>

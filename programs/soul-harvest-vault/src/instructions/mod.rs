@@ -6,6 +6,8 @@ pub mod close_vault;
 // pub mod mint_reaper_pass; // TODO: Re-enable after fixing mpl-token-metadata
 pub mod query_leaderboard;
 pub mod midnight_harvest;
+pub mod init_achievements;
+pub mod check_achievements;
 
 pub use initialize::*;
 pub use create_vault::*;
@@ -15,3 +17,5 @@ pub use close_vault::*;
 // pub use mint_reaper_pass::*; // TODO: Re-enable after fixing mpl-token-metadata
 pub use query_leaderboard::*;
 pub use midnight_harvest::*;
+pub use init_achievements::*;
+pub use check_achievements::*;

@@ -277,4 +277,50 @@ pub mod soul_harvest_vault {
     pub fn midnight_harvest(ctx: Context<MidnightHarvest>) -> Result<MidnightHarvestResult> {
         instructions::midnight_harvest::handler(ctx)
     }
+
+    /// Initialize achievement tracking for a user
+    ///
+    /// Creates the UserAchievements PDA to track the user's progress,
+    /// unlocked achievements, rank, and points.
+    ///
+    /// # Accounts
+    ///
+    /// * `achievements` - UserAchievements PDA (initialized)
+    /// * `user` - User (signer, payer)
+    ///
+    /// # Example
+    ///
+    /// ```ignore
+    /// init_achievements(ctx)?;
+    /// ```
+    pub fn init_achievements(ctx: Context<InitAchievements>) -> Result<()> {
+        instructions::init_achievements::handler(ctx)
+    }
+
+    /// Check and unlock achievements based on vault state
+    ///
+    /// Scans the user's vault and achievement progress to unlock any
+    /// achievements they've earned. Returns details of newly unlocked
+    /// achievements and points earned.
+    ///
+    /// # Accounts
+    ///
+    /// * `achievements` - UserAchievements PDA (mutable)
+    /// * `vault` - User's Vault PDA
+    /// * `config` - VaultConfig PDA
+    /// * `user` - User (signer)
+    ///
+    /// # Returns
+    ///
+    /// * `AchievementCheckResult` - Newly unlocked achievements, points, and rank
+    ///
+    /// # Example
+    ///
+    /// ```ignore
+    /// let result = check_achievements(ctx)?;
+    /// msg!("Unlocked {} achievements!", result.newly_unlocked.len());
+    /// ```
+    pub fn check_achievements(ctx: Context<CheckAchievements>) -> Result<AchievementCheckResult> {
+        instructions::check_achievements::handler(ctx)
+    }
 }

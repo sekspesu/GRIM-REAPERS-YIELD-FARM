@@ -10,6 +10,7 @@ A Solana-based DeFi protocol built with Anchor that enables users to deposit tok
 - **Reaper Pass NFTs**: Limited-edition NFTs (1666 supply) that provide 2x reward boost
 - **Midnight Harvest**: Automated daily compounding with 13% soul tax and 1% charity donation
 - **Leaderboard System**: Track and rank users by Total Value Locked (TVL)
+- **🏆 Achievement System**: 27 unlockable achievements with 5 rank tiers (Ghost → Reaper) - [See ACHIEVEMENTS.md](./ACHIEVEMENTS.md)
 - **Flexible Withdrawals**: Withdraw tokens at any time, even from inactive vaults
 - **Rent Reclamation**: Close empty vaults to reclaim rent
 
@@ -26,18 +27,22 @@ soul-harvest-vault/
 │           ├── state/              # Account structures
 │           │   ├── config.rs       # Global configuration
 │           │   ├── vault.rs        # User vault
-│           │   └── leaderboard.rs  # Leaderboard entry
+│           │   ├── leaderboard.rs  # Leaderboard entry
+│           │   └── achievements.rs # Achievement system
 │           ├── instructions/       # Instruction handlers
 │           │   ├── initialize.rs
 │           │   ├── create_vault.rs
 │           │   ├── compound.rs
 │           │   ├── withdraw.rs
 │           │   ├── close_vault.rs
-│           │   └── mint_reaper_pass.rs
+│           │   ├── midnight_harvest.rs
+│           │   ├── init_achievements.rs
+│           │   └── check_achievements.rs
 │           ├── errors.rs           # Custom errors
 │           └── constants.rs        # Program constants
 └── tests/
-    └── soul-harvest-vault.ts       # Integration tests
+    ├── soul-harvest-vault-simple.ts  # Core tests
+    └── achievements.ts               # Achievement tests
 ```
 
 ### Account Structure

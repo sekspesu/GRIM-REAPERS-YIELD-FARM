@@ -1,148 +1,1551 @@
 {
-  "version": "0.1.0",
-  "name": "soul_harvest_vault",
+  "address": "CM7bjZs41G4ryhjUMptVRLLd1ojwxHrrE5sGfEGqV5h",
+  "metadata": {
+    "name": "soul_harvest_vault",
+    "version": "0.1.0",
+    "spec": "0.1.0",
+    "description": "Soul Harvest Vault - A Solana DeFi protocol with gamified rewards"
+  },
   "instructions": [
     {
-      "name": "initialize",
-      "accounts": [
-        { "name": "config", "isMut": true, "isSigner": false },
-        { "name": "reaperMint", "isMut": true, "isSigner": true },
-        { "name": "authority", "isMut": true, "isSigner": true },
-        { "name": "systemProgram", "isMut": false, "isSigner": false },
-        { "name": "tokenProgram", "isMut": false, "isSigner": false },
-        { "name": "rent", "isMut": false, "isSigner": false }
+      "name": "check_achievements",
+      "docs": [
+        "Check and unlock achievements based on vault state",
+        "",
+        "Scans the user's vault and achievement progress to unlock any",
+        "achievements they've earned. Returns details of newly unlocked",
+        "achievements and points earned.",
+        "",
+        "# Accounts",
+        "",
+        "* `achievements` - UserAchievements PDA (mutable)",
+        "* `vault` - User's Vault PDA",
+        "* `config` - VaultConfig PDA",
+        "* `user` - User (signer)",
+        "",
+        "# Returns",
+        "",
+        "* `AchievementCheckResult` - Newly unlocked achievements, points, and rank",
+        "",
+        "# Example",
+        "",
+        "```ignore",
+        "let result = check_achievements(ctx)?;",
+        "msg!(\"Unlocked {} achievements!\", result.newly_unlocked.len());",
+        "```"
       ],
-      "args": [
-        { "name": "baseApy", "type": "u16" },
-        { "name": "soulsPerToken", "type": "u64" }
-      ]
+      "discriminator": [
+        190,
+        85,
+        124,
+        9,
+        78,
+        106,
+        246,
+        129
+      ],
+      "accounts": [
+        {
+          "name": "achievements",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  97,
+                  99,
+                  104,
+                  105,
+                  101,
+                  118,
+                  101,
+                  109,
+                  101,
+                  110,
+                  116,
+                  115
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "user"
+              }
+            ]
+          }
+        },
+        {
+          "name": "vault",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "user"
+              },
+              {
+                "kind": "account",
+                "path": "vault.token_mint",
+                "account": "Vault"
+              }
+            ]
+          }
+        },
+        {
+          "name": "config",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "user",
+          "signer": true
+        }
+      ],
+      "args": [],
+      "returns": {
+        "defined": {
+          "name": "AchievementCheckResult"
+        }
+      }
     },
     {
-      "name": "createVault",
-      "accounts": [
-        { "name": "vault", "isMut": true, "isSigner": false },
-        { "name": "leaderboardEntry", "isMut": true, "isSigner": false },
-        { "name": "config", "isMut": true, "isSigner": false },
-        { "name": "owner", "isMut": true, "isSigner": true },
-        { "name": "tokenMint", "isMut": false, "isSigner": false },
-        { "name": "ownerTokenAccount", "isMut": true, "isSigner": false },
-        { "name": "vaultTokenAccount", "isMut": true, "isSigner": false },
-        { "name": "tokenProgram", "isMut": false, "isSigner": false },
-        { "name": "systemProgram", "isMut": false, "isSigner": false },
-        { "name": "rent", "isMut": false, "isSigner": false }
+      "name": "close_vault",
+      "docs": [
+        "Close a vault and reclaim rent",
+        "",
+        "Closes the vault and leaderboard entry accounts, returning rent to the owner.",
+        "Vault balance must be zero before closing.",
+        "",
+        "# Accounts",
+        "",
+        "* `vault` - Vault PDA (closed)",
+        "* `leaderboard_entry` - LeaderboardEntry PDA (closed)",
+        "* `owner` - Vault owner (signer, receives rent)",
+        "",
+        "# Errors",
+        "",
+        "* `NonZeroBalance` - If vault balance is not zero",
+        "* `Unauthorized` - If signer is not the vault owner",
+        "",
+        "# Example",
+        "",
+        "```ignore",
+        "// Close vault after withdrawing all funds",
+        "close_vault(ctx)?;",
+        "```"
       ],
-      "args": [
-        { "name": "initialDeposit", "type": "u64" }
-      ]
+      "discriminator": [
+        141,
+        103,
+        17,
+        126,
+        72,
+        75,
+        29,
+        29
+      ],
+      "accounts": [
+        {
+          "name": "vault",
+          "docs": [
+            "Vault account (PDA) - will be closed"
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "owner"
+              },
+              {
+                "kind": "account",
+                "path": "vault.token_mint",
+                "account": "Vault"
+              }
+            ]
+          }
+        },
+        {
+          "name": "leaderboard_entry",
+          "docs": [
+            "Leaderboard entry for the user (PDA) - will be closed"
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  108,
+                  101,
+                  97,
+                  100,
+                  101,
+                  114,
+                  98,
+                  111,
+                  97,
+                  114,
+                  100
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "owner"
+              }
+            ]
+          }
+        },
+        {
+          "name": "owner",
+          "docs": [
+            "Vault owner (must be signer, receives rent)"
+          ],
+          "writable": true,
+          "signer": true,
+          "relations": [
+            "vault"
+          ]
+        }
+      ],
+      "args": []
     },
     {
       "name": "compound",
+      "docs": [
+        "Compound rewards for a vault",
+        "",
+        "Calculates rewards based on time elapsed since last compound and adds them",
+        "to the vault balance. If the owner holds a Reaper Pass NFT, applies a 2x boost.",
+        "Also calculates and adds souls to the vault's total.",
+        "",
+        "# Accounts",
+        "",
+        "* `vault` - Vault PDA (mutable)",
+        "* `config` - VaultConfig PDA",
+        "* `owner_reaper_account` - Owner's Reaper Pass token account (optional)",
+        "* `reaper_mint` - Reaper Pass mint",
+        "",
+        "# Errors",
+        "",
+        "* `VaultInactive` - If vault is not active",
+        "* `ArithmeticOverflow` - If calculations overflow",
+        "",
+        "# Reward Formula",
+        "",
+        "```text",
+        "base_rewards = (balance * base_apy * time_elapsed) / (365 days * 10000)",
+        "if has_reaper_pass:",
+        "final_rewards = base_rewards * (reaper_boost / 10000)",
+        "souls = final_rewards * souls_per_token",
+        "```",
+        "",
+        "# Example",
+        "",
+        "```ignore",
+        "// Compound rewards (automatically detects Reaper Pass)",
+        "compound(ctx)?;",
+        "```"
+      ],
+      "discriminator": [
+        165,
+        208,
+        251,
+        78,
+        242,
+        160,
+        141,
+        47
+      ],
       "accounts": [
-        { "name": "vault", "isMut": true, "isSigner": false },
-        { "name": "config", "isMut": false, "isSigner": false },
-        { "name": "leaderboardEntry", "isMut": true, "isSigner": false },
-        { "name": "ownerReaperAccount", "isMut": false, "isSigner": false },
-        { "name": "reaperMint", "isMut": false, "isSigner": false }
+        {
+          "name": "vault",
+          "docs": [
+            "Vault account to compound rewards for"
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "vault.owner",
+                "account": "Vault"
+              },
+              {
+                "kind": "account",
+                "path": "vault.token_mint",
+                "account": "Vault"
+              }
+            ]
+          }
+        },
+        {
+          "name": "leaderboard_entry",
+          "docs": [
+            "Leaderboard entry for the user (PDA)"
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  108,
+                  101,
+                  97,
+                  100,
+                  101,
+                  114,
+                  98,
+                  111,
+                  97,
+                  114,
+                  100
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "vault.owner",
+                "account": "Vault"
+              }
+            ]
+          }
+        },
+        {
+          "name": "config",
+          "docs": [
+            "Global configuration account"
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "owner_reaper_account",
+          "docs": [
+            "Owner's Reaper Pass token account (optional, used to check for boost)",
+            "If this account has balance > 0, the owner holds a Reaper Pass"
+          ],
+          "optional": true
+        },
+        {
+          "name": "reaper_mint",
+          "docs": [
+            "Reaper Pass mint (used to verify the token account)"
+          ]
+        },
+        {
+          "name": "clock",
+          "docs": [
+            "Clock sysvar for timestamp"
+          ],
+          "address": "SysvarC1ock11111111111111111111111111111111"
+        }
       ],
       "args": []
     },
     {
-      "name": "withdraw",
+      "name": "create_vault",
+      "docs": [
+        "Create a new vault with an initial deposit",
+        "",
+        "Creates a vault for the signer to stake tokens and earn rewards.",
+        "Also creates a leaderboard entry for the user.",
+        "",
+        "# Arguments",
+        "",
+        "* `initial_deposit` - Amount of tokens to deposit (must be > 0)",
+        "",
+        "# Accounts",
+        "",
+        "* `vault` - Vault PDA (initialized)",
+        "* `leaderboard_entry` - LeaderboardEntry PDA (initialized)",
+        "* `owner` - Vault owner (signer, payer)",
+        "* `token_mint` - Token mint being staked",
+        "* `owner_token_account` - Owner's token account (source)",
+        "* `vault_token_account` - Vault's token account (initialized)",
+        "",
+        "# Errors",
+        "",
+        "* `InvalidDepositAmount` - If initial_deposit is 0",
+        "* `InsufficientFunds` - If owner doesn't have enough tokens",
+        "",
+        "# Example",
+        "",
+        "```ignore",
+        "// Create vault with 1000 tokens",
+        "create_vault(ctx, 1000)?;",
+        "```"
+      ],
+      "discriminator": [
+        29,
+        237,
+        247,
+        208,
+        193,
+        82,
+        54,
+        135
+      ],
       "accounts": [
-        { "name": "vault", "isMut": true, "isSigner": false },
-        { "name": "leaderboardEntry", "isMut": true, "isSigner": false },
-        { "name": "config", "isMut": true, "isSigner": false },
-        { "name": "owner", "isMut": false, "isSigner": true },
-        { "name": "vaultTokenAccount", "isMut": true, "isSigner": false },
-        { "name": "ownerTokenAccount", "isMut": true, "isSigner": false },
-        { "name": "tokenProgram", "isMut": false, "isSigner": false }
+        {
+          "name": "vault",
+          "docs": [
+            "Vault account (PDA)"
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "owner"
+              },
+              {
+                "kind": "account",
+                "path": "token_mint"
+              }
+            ]
+          }
+        },
+        {
+          "name": "leaderboard_entry",
+          "docs": [
+            "Leaderboard entry for the user (PDA)"
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  108,
+                  101,
+                  97,
+                  100,
+                  101,
+                  114,
+                  98,
+                  111,
+                  97,
+                  114,
+                  100
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "owner"
+              }
+            ]
+          }
+        },
+        {
+          "name": "config",
+          "docs": [
+            "Global configuration account"
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "owner",
+          "docs": [
+            "Vault owner (signer and payer)"
+          ],
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "token_mint",
+          "docs": [
+            "Token mint being staked"
+          ]
+        },
+        {
+          "name": "owner_token_account",
+          "docs": [
+            "Owner's token account (source of deposit)"
+          ],
+          "writable": true
+        },
+        {
+          "name": "vault_token_account",
+          "docs": [
+            "Vault's token account (destination for deposit)"
+          ],
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "token_program",
+          "docs": [
+            "SPL Token program"
+          ],
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        },
+        {
+          "name": "system_program",
+          "docs": [
+            "System program"
+          ],
+          "address": "11111111111111111111111111111111"
+        }
       ],
       "args": [
-        { "name": "amount", "type": "u64" }
+        {
+          "name": "initial_deposit",
+          "type": "u64"
+        }
       ]
     },
     {
-      "name": "closeVault",
+      "name": "init_achievements",
+      "docs": [
+        "Initialize achievement tracking for a user",
+        "",
+        "Creates the UserAchievements PDA to track the user's progress,",
+        "unlocked achievements, rank, and points.",
+        "",
+        "# Accounts",
+        "",
+        "* `achievements` - UserAchievements PDA (initialized)",
+        "* `user` - User (signer, payer)",
+        "",
+        "# Example",
+        "",
+        "```ignore",
+        "init_achievements(ctx)?;",
+        "```"
+      ],
+      "discriminator": [
+        83,
+        211,
+        224,
+        8,
+        119,
+        9,
+        247,
+        4
+      ],
       "accounts": [
-        { "name": "vault", "isMut": true, "isSigner": false },
-        { "name": "leaderboardEntry", "isMut": true, "isSigner": false },
-        { "name": "owner", "isMut": true, "isSigner": true }
+        {
+          "name": "achievements",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  97,
+                  99,
+                  104,
+                  105,
+                  101,
+                  118,
+                  101,
+                  109,
+                  101,
+                  110,
+                  116,
+                  115
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "user"
+              }
+            ]
+          }
+        },
+        {
+          "name": "user",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
       ],
       "args": []
     },
     {
-      "name": "midnightHarvest",
-      "accounts": [
-        { "name": "vault", "isMut": true, "isSigner": false },
-        { "name": "config", "isMut": true, "isSigner": false },
-        { "name": "leaderboardEntry", "isMut": true, "isSigner": false },
-        { "name": "ownerReaperAccount", "isMut": false, "isSigner": false },
-        { "name": "reaperMint", "isMut": false, "isSigner": false },
-        { "name": "charityWallet", "isMut": false, "isSigner": false },
-        { "name": "vaultTokenAccount", "isMut": true, "isSigner": false },
-        { "name": "charityTokenAccount", "isMut": true, "isSigner": false },
-        { "name": "tokenProgram", "isMut": false, "isSigner": false }
+      "name": "initialize",
+      "docs": [
+        "Initialize the Soul Harvest Vault program",
+        "",
+        "Creates the global VaultConfig account and Reaper Pass mint.",
+        "This must be called once before any other instructions.",
+        "",
+        "# Arguments",
+        "",
+        "* `base_apy` - Base APY in basis points (e.g., 1000 = 10%)",
+        "* `souls_per_token` - Number of souls earned per token compounded",
+        "",
+        "# Accounts",
+        "",
+        "* `config` - VaultConfig PDA (initialized)",
+        "* `reaper_mint` - Reaper Pass mint account (initialized)",
+        "* `authority` - Program authority (signer, payer)",
+        "",
+        "# Example",
+        "",
+        "```ignore",
+        "// Initialize with 10% APY and 1 soul per token",
+        "initialize(ctx, 1000, 1)?;",
+        "```"
       ],
-      "args": []
+      "discriminator": [
+        175,
+        175,
+        109,
+        31,
+        13,
+        152,
+        155,
+        237
+      ],
+      "accounts": [
+        {
+          "name": "config",
+          "docs": [
+            "Global configuration account (PDA)"
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "reaper_mint",
+          "docs": [
+            "Reaper Pass NFT mint account"
+          ],
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "authority",
+          "docs": [
+            "Program authority (pays for account creation)"
+          ],
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "system_program",
+          "docs": [
+            "System program"
+          ],
+          "address": "11111111111111111111111111111111"
+        },
+        {
+          "name": "token_program",
+          "docs": [
+            "SPL Token program"
+          ],
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        },
+        {
+          "name": "rent",
+          "docs": [
+            "Rent sysvar"
+          ],
+          "address": "SysvarRent111111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "base_apy",
+          "type": "u16"
+        },
+        {
+          "name": "souls_per_token",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "midnight_harvest",
+      "docs": [
+        "Midnight Harvest - Automated daily compounding with soul tax",
+        "",
+        "Compounds rewards for a vault with special midnight harvest mechanics:",
+        "- Calculates rewards based on time elapsed",
+        "- Applies 13% soul tax (tracked for burning)",
+        "- Sends 1% to charity (Solana Foundation)",
+        "- Adds remaining 86% to vault balance",
+        "",
+        "This instruction is designed to be called by automated keeper bots",
+        "at midnight UTC daily for all active vaults.",
+        "",
+        "# Accounts",
+        "",
+        "* `vault` - Vault PDA (mutable)",
+        "* `config` - VaultConfig PDA",
+        "* `owner_reaper_account` - Owner's Reaper Pass token account (optional)",
+        "* `reaper_mint` - Reaper Pass mint",
+        "* `charity_wallet` - Solana Foundation wallet",
+        "* `vault_token_account` - Vault's token account",
+        "* `charity_token_account` - Charity's token account",
+        "",
+        "# Returns",
+        "",
+        "* `MidnightHarvestResult` - Details of rewards, taxes, and net amounts",
+        "",
+        "# Errors",
+        "",
+        "* `VaultInactive` - If vault is not active",
+        "* `ArithmeticOverflow` - If calculations overflow",
+        "",
+        "# Example",
+        "",
+        "```ignore",
+        "// Execute midnight harvest for a vault",
+        "let result = midnight_harvest(ctx)?;",
+        "msg!(\"Harvested {} souls with {} tax\", result.net_reward, result.soul_tax);",
+        "```"
+      ],
+      "discriminator": [
+        41,
+        158,
+        6,
+        198,
+        158,
+        233,
+        79,
+        109
+      ],
+      "accounts": [
+        {
+          "name": "vault",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "vault.owner",
+                "account": "Vault"
+              },
+              {
+                "kind": "account",
+                "path": "vault.token_mint",
+                "account": "Vault"
+              }
+            ]
+          }
+        },
+        {
+          "name": "leaderboard_entry",
+          "docs": [
+            "Leaderboard entry for the user (PDA)"
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  108,
+                  101,
+                  97,
+                  100,
+                  101,
+                  114,
+                  98,
+                  111,
+                  97,
+                  114,
+                  100
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "vault.owner",
+                "account": "Vault"
+              }
+            ]
+          }
+        },
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "owner_reaper_account",
+          "docs": [
+            "Optional: Owner's Reaper Pass token account for boost"
+          ],
+          "optional": true
+        },
+        {
+          "name": "reaper_mint"
+        },
+        {
+          "name": "charity_wallet",
+          "docs": [
+            "Charity recipient (Solana Foundation)"
+          ],
+          "writable": true
+        },
+        {
+          "name": "vault_token_account",
+          "docs": [
+            "Vault's token account for charity transfer"
+          ],
+          "writable": true
+        },
+        {
+          "name": "charity_token_account",
+          "docs": [
+            "Charity's token account"
+          ],
+          "writable": true
+        },
+        {
+          "name": "token_program",
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        }
+      ],
+      "args": [],
+      "returns": {
+        "defined": {
+          "name": "MidnightHarvestResult"
+        }
+      }
+    },
+    {
+      "name": "withdraw",
+      "docs": [
+        "Withdraw tokens from a vault",
+        "",
+        "Transfers tokens from the vault back to the owner's wallet.",
+        "Updates the vault balance and leaderboard TVL.",
+        "Can be called even if vault is inactive.",
+        "",
+        "# Arguments",
+        "",
+        "* `amount` - Amount of tokens to withdraw",
+        "",
+        "# Accounts",
+        "",
+        "* `vault` - Vault PDA (mutable)",
+        "* `leaderboard_entry` - LeaderboardEntry PDA (mutable)",
+        "* `owner` - Vault owner (signer)",
+        "* `vault_token_account` - Vault's token account (source)",
+        "* `owner_token_account` - Owner's token account (destination)",
+        "",
+        "# Errors",
+        "",
+        "* `InsufficientBalance` - If amount exceeds vault balance",
+        "* `Unauthorized` - If signer is not the vault owner",
+        "",
+        "# Example",
+        "",
+        "```ignore",
+        "// Withdraw 500 tokens",
+        "withdraw(ctx, 500)?;",
+        "```"
+      ],
+      "discriminator": [
+        183,
+        18,
+        70,
+        156,
+        148,
+        109,
+        161,
+        34
+      ],
+      "accounts": [
+        {
+          "name": "vault",
+          "docs": [
+            "Vault account (PDA)"
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "owner"
+              },
+              {
+                "kind": "account",
+                "path": "vault.token_mint",
+                "account": "Vault"
+              }
+            ]
+          }
+        },
+        {
+          "name": "leaderboard_entry",
+          "docs": [
+            "Leaderboard entry for the user (PDA)"
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  108,
+                  101,
+                  97,
+                  100,
+                  101,
+                  114,
+                  98,
+                  111,
+                  97,
+                  114,
+                  100
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "owner"
+              }
+            ]
+          }
+        },
+        {
+          "name": "config",
+          "docs": [
+            "Global configuration account"
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "owner",
+          "docs": [
+            "Vault owner (must be signer)"
+          ],
+          "signer": true,
+          "relations": [
+            "vault"
+          ]
+        },
+        {
+          "name": "vault_token_account",
+          "docs": [
+            "Vault's token account (source of withdrawal)"
+          ],
+          "writable": true
+        },
+        {
+          "name": "owner_token_account",
+          "docs": [
+            "Owner's token account (destination for withdrawal)"
+          ],
+          "writable": true
+        },
+        {
+          "name": "token_program",
+          "docs": [
+            "SPL Token program"
+          ],
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        }
+      ],
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        }
+      ]
     }
   ],
   "accounts": [
     {
-      "name": "VaultConfig",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          { "name": "authority", "type": "publicKey" },
-          { "name": "reaperMint", "type": "publicKey" },
-          { "name": "reaperSupply", "type": "u16" },
-          { "name": "baseApy", "type": "u16" },
-          { "name": "reaperBoost", "type": "u16" },
-          { "name": "soulsPerToken", "type": "u64" },
-          { "name": "totalTvl", "type": "u64" },
-          { "name": "bump", "type": "u8" }
-        ]
-      }
+      "name": "LeaderboardEntry",
+      "discriminator": [
+        187,
+        21,
+        182,
+        152,
+        7,
+        55,
+        20,
+        16
+      ]
+    },
+    {
+      "name": "UserAchievements",
+      "discriminator": [
+        113,
+        223,
+        157,
+        75,
+        204,
+        112,
+        2,
+        207
+      ]
     },
     {
       "name": "Vault",
+      "discriminator": [
+        211,
+        8,
+        232,
+        43,
+        2,
+        152,
+        117,
+        119
+      ]
+    },
+    {
+      "name": "VaultConfig",
+      "discriminator": [
+        99,
+        86,
+        43,
+        216,
+        184,
+        102,
+        119,
+        77
+      ]
+    }
+  ],
+  "events": [
+    {
+      "name": "MidnightHarvestEvent",
+      "discriminator": [
+        39,
+        10,
+        105,
+        87,
+        176,
+        146,
+        153,
+        80
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "InsufficientFunds",
+      "msg": "Insufficient funds for operation"
+    },
+    {
+      "code": 6001,
+      "name": "InsufficientBalance",
+      "msg": "Insufficient balance in vault"
+    },
+    {
+      "code": 6002,
+      "name": "NonZeroBalance",
+      "msg": "Vault balance must be zero to close"
+    },
+    {
+      "code": 6003,
+      "name": "VaultInactive",
+      "msg": "Vault is not active"
+    },
+    {
+      "code": 6004,
+      "name": "SupplyExhausted",
+      "msg": "Reaper Pass supply exhausted"
+    },
+    {
+      "code": 6005,
+      "name": "Unauthorized",
+      "msg": "Unauthorized: only authority can perform this action"
+    },
+    {
+      "code": 6006,
+      "name": "InvalidMint",
+      "msg": "Invalid token mint"
+    },
+    {
+      "code": 6007,
+      "name": "ArithmeticOverflow",
+      "msg": "Arithmetic overflow"
+    },
+    {
+      "code": 6008,
+      "name": "InvalidDepositAmount",
+      "msg": "Invalid deposit amount"
+    }
+  ],
+  "types": [
+    {
+      "name": "AchievementCheckResult",
+      "docs": [
+        "Result of checking achievements"
+      ],
       "type": {
         "kind": "struct",
         "fields": [
-          { "name": "owner", "type": "publicKey" },
-          { "name": "tokenMint", "type": "publicKey" },
-          { "name": "balance", "type": "u64" },
-          { "name": "lastCompound", "type": "i64" },
-          { "name": "totalSoulsHarvested", "type": "u64" },
-          { "name": "isActive", "type": "bool" },
-          { "name": "bump", "type": "u8" }
+          {
+            "name": "newly_unlocked",
+            "type": {
+              "vec": "string"
+            }
+          },
+          {
+            "name": "points_earned",
+            "type": "u32"
+          },
+          {
+            "name": "new_rank",
+            "type": "string"
+          },
+          {
+            "name": "total_points",
+            "type": "u32"
+          }
         ]
       }
     },
     {
       "name": "LeaderboardEntry",
+      "docs": [
+        "Leaderboard entry tracking user's total value locked and rank"
+      ],
       "type": {
         "kind": "struct",
         "fields": [
-          { "name": "user", "type": "publicKey" },
-          { "name": "tvl", "type": "u64" },
-          { "name": "rank", "type": "u32" },
-          { "name": "bump", "type": "u8" }
+          {
+            "name": "user",
+            "docs": [
+              "User's public key"
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "tvl",
+            "docs": [
+              "Total value locked across all user's vaults"
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "rank",
+            "docs": [
+              "Current rank on the leaderboard (0-indexed, 0 = highest)"
+            ],
+            "type": "u32"
+          },
+          {
+            "name": "bump",
+            "docs": [
+              "PDA bump seed"
+            ],
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "MidnightHarvestEvent",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "vault",
+            "type": "pubkey"
+          },
+          {
+            "name": "owner",
+            "type": "pubkey"
+          },
+          {
+            "name": "rewards",
+            "type": "u64"
+          },
+          {
+            "name": "soul_tax",
+            "type": "u64"
+          },
+          {
+            "name": "charity_amount",
+            "type": "u64"
+          },
+          {
+            "name": "net_reward",
+            "type": "u64"
+          },
+          {
+            "name": "souls_earned",
+            "type": "u64"
+          },
+          {
+            "name": "timestamp",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "MidnightHarvestResult",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "rewards",
+            "type": "u64"
+          },
+          {
+            "name": "soul_tax",
+            "type": "u64"
+          },
+          {
+            "name": "charity_amount",
+            "type": "u64"
+          },
+          {
+            "name": "net_reward",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "UserAchievements",
+      "docs": [
+        "Achievement flags stored as a bitfield for efficient storage",
+        "Each bit represents whether an achievement is unlocked"
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "user",
+            "docs": [
+              "User who owns these achievements"
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "unlocked",
+            "docs": [
+              "Bitfield of unlocked achievements (supports up to 64 achievements)"
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "rank",
+            "docs": [
+              "Current rank tier (0-4)"
+            ],
+            "type": "u8"
+          },
+          {
+            "name": "points",
+            "docs": [
+              "Total achievement points earned"
+            ],
+            "type": "u32"
+          },
+          {
+            "name": "first_deposit_time",
+            "docs": [
+              "Timestamp of first deposit (for \"OG\" achievements)"
+            ],
+            "type": "i64"
+          },
+          {
+            "name": "midnight_harvest_count",
+            "docs": [
+              "Count of midnight harvests participated in"
+            ],
+            "type": "u32"
+          },
+          {
+            "name": "highest_compound",
+            "docs": [
+              "Highest single compound reward earned"
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "total_compounds",
+            "docs": [
+              "Total number of compounds performed"
+            ],
+            "type": "u32"
+          },
+          {
+            "name": "bump",
+            "docs": [
+              "PDA bump seed"
+            ],
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Vault",
+      "docs": [
+        "Individual user vault for token staking and soul harvesting"
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "owner",
+            "docs": [
+              "Owner of the vault"
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "token_mint",
+            "docs": [
+              "Token mint being staked in this vault"
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "balance",
+            "docs": [
+              "Current token balance in the vault"
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "last_compound",
+            "docs": [
+              "Timestamp of last compound operation (Unix timestamp)"
+            ],
+            "type": "i64"
+          },
+          {
+            "name": "total_souls_harvested",
+            "docs": [
+              "Cumulative souls harvested by this vault"
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "is_active",
+            "docs": [
+              "Whether the vault is active (false when closed)"
+            ],
+            "type": "bool"
+          },
+          {
+            "name": "bump",
+            "docs": [
+              "PDA bump seed"
+            ],
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "VaultConfig",
+      "docs": [
+        "Global configuration for the Soul Harvest Vault program"
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "authority",
+            "docs": [
+              "Program authority that can mint Reaper Passes"
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "reaper_mint",
+            "docs": [
+              "Mint address for Reaper Pass NFTs"
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "reaper_supply",
+            "docs": [
+              "Current number of Reaper Passes minted (max 1666)"
+            ],
+            "type": "u16"
+          },
+          {
+            "name": "base_apy",
+            "docs": [
+              "Base APY in basis points (e.g., 1000 = 10%)"
+            ],
+            "type": "u16"
+          },
+          {
+            "name": "reaper_boost",
+            "docs": [
+              "Boost multiplier for Reaper Pass holders in basis points (e.g., 20000 = 2.0x)"
+            ],
+            "type": "u16"
+          },
+          {
+            "name": "souls_per_token",
+            "docs": [
+              "Number of souls earned per token compounded"
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "total_tvl",
+            "docs": [
+              "Total value locked across all vaults (in lamports/tokens)"
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "bump",
+            "docs": [
+              "PDA bump seed"
+            ],
+            "type": "u8"
+          }
         ]
       }
     }
-  ],
-  "errors": [
-    { "code": 6000, "name": "InsufficientFunds", "msg": "Insufficient funds" },
-    { "code": 6001, "name": "InsufficientBalance", "msg": "Insufficient balance" },
-    { "code": 6002, "name": "NonZeroBalance", "msg": "Vault balance must be zero" },
-    { "code": 6003, "name": "VaultInactive", "msg": "Vault is inactive" },
-    { "code": 6004, "name": "SupplyExhausted", "msg": "Reaper Pass supply exhausted" },
-    { "code": 6005, "name": "Unauthorized", "msg": "Unauthorized" },
-    { "code": 6006, "name": "InvalidMint", "msg": "Invalid mint" },
-    { "code": 6007, "name": "ArithmeticOverflow", "msg": "Arithmetic overflow" },
-    { "code": 6008, "name": "InvalidDepositAmount", "msg": "Invalid deposit amount" }
-  ],
-  "metadata": {
-    "address": "CM7bjZs41G4ryhjUMptVRLLd1ojwxHrrE5sGfEGqV5h"
-  }
+  ]
 }
